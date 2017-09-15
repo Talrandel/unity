@@ -82,15 +82,7 @@ namespace Unity.Tests
         public void BindingDependencyArrayToArrayParameterWithRankOverOneThrows()
         {
             IUnityContainer container = new UnityContainer();
-
-            try
-            {
-                container.Resolve<TypeWithArrayConstructorParameterOfRankTwo>();
-                Assert.True(false, string.Format("Call to Resolve<>() should have failed"));
-            }
-            catch (ResolutionFailedException)
-            {
-            }
+            Assert.Throws<ResolutionFailedException>(() => { container.Resolve<TypeWithArrayConstructorParameterOfRankTwo>(); });
         }
 
         public class TypeWithArrayConstructorParameter

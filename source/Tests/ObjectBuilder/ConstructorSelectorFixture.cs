@@ -64,17 +64,7 @@ namespace ObjectBuilder2.Tests
         public void SelectorThrowsIfConstructorsAreAmbiguous()
         {
             IConstructorSelectorPolicy policy = CreateSelector();
-
-            try
-            {
-                policy.SelectConstructor(GetContext<ObjectWithAmbiguousConstructors>(), new PolicyList());
-            }
-            catch (InvalidOperationException)
-            {
-                // If we got here we're ok
-                return;
-            }
-            Assert.True(false, string.Format("Expected exception did not occur"));
+            Assert.Throws<InvalidOperationException>(() => policy.SelectConstructor(GetContext<ObjectWithAmbiguousConstructors>(), new PolicyList()));
         }
 
         [Fact]

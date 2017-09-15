@@ -48,32 +48,14 @@ namespace Unity.Tests
         public void ResolvingANewInstanceOfTypeWithCtorWithRefParameterThrows()
         {
             IUnityContainer container = new UnityContainer();
-
-            try
-            {
-                TypeWithConstructorWithRefParameter instance = container.Resolve<TypeWithConstructorWithRefParameter>();
-                Assert.True(false, string.Format("should have thrown"));
-            }
-            catch (ResolutionFailedException)
-            {
-                // expected
-            }
+            Assert.Throws<ResolutionFailedException>( () => { TypeWithConstructorWithRefParameter instance = container.Resolve<TypeWithConstructorWithRefParameter>(); });
         }
 
         [Fact]
         public void ResolvingANewInstanceOfTypeWithCtorWithOutParameterThrows()
         {
             IUnityContainer container = new UnityContainer();
-
-            try
-            {
-                TypeWithConstructorWithOutParameter instance = container.Resolve<TypeWithConstructorWithOutParameter>();
-                Assert.True(false, string.Format("should have thrown"));
-            }
-            catch (ResolutionFailedException)
-            {
-                // expected
-            }
+            Assert.Throws<ResolutionFailedException>(() => { TypeWithConstructorWithOutParameter instance = container.Resolve<TypeWithConstructorWithOutParameter>(); });
         }
 
         public class TypeWithConstructorWithRefParameter

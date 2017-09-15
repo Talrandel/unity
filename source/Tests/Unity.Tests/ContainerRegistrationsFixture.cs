@@ -90,7 +90,7 @@ namespace Unity.Tests
 
             var registration =
                 (from r in container.Registrations where r.RegisteredType == typeof(ILogger) select r).First();
-            Assert.Same(typeof(MockLogger), registration.MappedToType);
+            Assert.IsType<MockLogger>(registration.MappedToType);
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace Unity.Tests
             var registration =
                 (from r in child.Registrations where r.RegisteredType == typeof(ILogger) select r).First();
 
-            Assert.Same(typeof(MockLogger), registration.MappedToType);
+            Assert.IsType<MockLogger>(registration.MappedToType);
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace Unity.Tests
             Assert.Equal(1, registrations.Count());
 
             var childRegistration = registrations.First();
-            Assert.Same(typeof(SpecialLogger), childRegistration.MappedToType);
+            Assert.IsType<SpecialLogger>(childRegistration.MappedToType);
             Assert.Equal("one", childRegistration.Name);
         }
     }

@@ -47,31 +47,14 @@ namespace ObjectBuilder2.Tests
         {
             var original = new NamedTypeBuildKey(typeof(IList<string>));
             IBuildKeyMappingPolicy policy = new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(typeof(Dictionary<,>)));
-            try
-            {
-                policy.Map(original, null);
-                Assert.True(false, string.Format("Expected exception"));
-            }
-            catch (ArgumentException)
-            {
-                // expected
-            }
+            Assert.Throws<ArgumentException>(() => policy.Map(original, null));
         }
 
         [Fact]
         public void PolicyThrowsIfInputIsNotAGeneric()
         {
             IBuildKeyMappingPolicy policy = new GenericTypeBuildKeyMappingPolicy(new NamedTypeBuildKey(typeof(List<>)));
-
-            try
-            {
-                policy.Map(new NamedTypeBuildKey<int>(), null);
-                Assert.True(false, string.Format("Expected Exception"));
-            }
-            catch (ArgumentException)
-            {
-                // expected
-            }
+            Assert.Throws<ArgumentException>(() => policy.Map(new NamedTypeBuildKey<int>(), null));
         }
     }
 }

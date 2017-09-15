@@ -77,7 +77,7 @@ namespace Unity.Tests
             Assert.Equal(1, methodParams.Length);
 
             ParameterReflectionHelper helper = new ParameterReflectionHelper(methodParams[0]);
-            Assert.Same(typeof(string), helper.GetClosedParameterType(new Type[0]));
+            Assert.IsType<string>(helper.GetClosedParameterType(new Type[0]));
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace Unity.Tests
             ParameterReflectionHelper helper = new ParameterReflectionHelper(
                 m.GetParameters()[0]);
             Type closedType = helper.GetClosedParameterType(typeof(LoggingCommand<User>).GenericTypeArguments);
-            Assert.Same(typeof(ICommand<User>), closedType);
+            Assert.IsType<ICommand<User>>(closedType);
         }
 
         [Fact]

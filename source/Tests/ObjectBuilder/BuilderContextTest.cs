@@ -49,17 +49,9 @@ namespace ObjectBuilder2.Tests
         public void NewBuildDoesNotClearTheChildContextOnFailure()
         {
             this.parentContext = new BuilderContext(GetThrowingStrategyChain(), null, null, null, null, null);
-
-            try
-            {
-                this.parentContext.NewBuildUp(null);
-                Assert.True(false, string.Format("an exception should have been thrown here"));
-            }
-            catch (Exception)
-            {
-                Assert.NotNull(this.parentContext.ChildContext);
-                Assert.Same(this.parentContext.ChildContext, this.receivedContext);
-            }
+            var exception = Assert.Throws<Exception>(() => this.parentContext.NewBuildUp(null));
+            Assert.NotNull(this.parentContext.ChildContext);
+            Assert.Same(this.parentContext.ChildContext, this.receivedContext);
         }
 
         private StrategyChain GetNonThrowingStrategyChain()

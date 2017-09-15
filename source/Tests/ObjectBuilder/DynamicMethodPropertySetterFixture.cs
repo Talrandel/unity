@@ -74,8 +74,7 @@ namespace ObjectBuilder2.Tests
         [Fact]
         public void ExceptionThrownWhileResolvingAPropertyValueIsBubbledUpAndTheCurrentOperationIsNotCleared()
         {
-            var exception = new ArgumentException();
-            var resolverPolicy = new ExceptionThrowingTestResolverPolicy(exception);
+            var resolverPolicy = new ExceptionThrowingTestResolverPolicy(new ArgumentException());
 
             MockBuilderContext context = GetContext();
             var key = new NamedTypeBuildKey<OnePropertyClass>();
@@ -88,20 +87,12 @@ namespace ObjectBuilder2.Tests
 
             IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
 
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("failure expected"));
-            }
-            catch (Exception e)
-            {
-                Assert.Same(exception, e);
+            var exception = Assert.Throws<ArgumentException>(() => plan.BuildUp(context));
 
-                var operation = (ResolvingPropertyValueOperation)context.CurrentOperation;
-                Assert.NotNull(operation);
-                Assert.Same(typeof(OnePropertyClass), operation.TypeBeingConstructed);
-                Assert.Equal("Key", operation.PropertyName);
-            }
+            var operation = context.CurrentOperation as ResolvingPropertyValueOperation;
+            Assert.NotNull(operation);
+            Assert.IsType<OnePropertyClass>(operation.TypeBeingConstructed);
+            Assert.Equal("Key", operation.PropertyName);
         }
 
         [Fact]
@@ -115,20 +106,12 @@ namespace ObjectBuilder2.Tests
             IBuildPlanPolicy plan =
                 GetPlanCreator(context).CreatePlan(context, key);
 
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("failure expected"));
-            }
-            catch (Exception e)
-            {
-                Assert.Same(OneExceptionThrowingPropertyClass.PropertySetterException, e);
-                var operation = (SettingPropertyOperation)context.CurrentOperation;
-                Assert.NotNull(operation);
+            var exception = Assert.Throws<ArgumentException>(() => plan.BuildUp(context));
 
-                Assert.Same(typeof(OneExceptionThrowingPropertyClass), operation.TypeBeingConstructed);
-                Assert.Equal("Key", operation.PropertyName);
-            }
+            var operation = context.CurrentOperation as SettingPropertyOperation;
+            Assert.NotNull(operation);
+            Assert.IsType<OneExceptionThrowingPropertyClass>(operation.TypeBeingConstructed);
+            Assert.Equal("Key", operation.PropertyName);
         }
 
         private MockBuilderContext GetContext()

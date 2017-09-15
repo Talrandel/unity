@@ -84,20 +84,11 @@ namespace ObjectBuilder2.Tests
 
             IBuildPlanPolicy plan =
                 GetPlanCreator(context).CreatePlan(context, context.BuildKey);
+            var exception = Assert.Throws<ArgumentException>(() => plan.BuildUp(context));
+            var operation = context.CurrentOperation as InvokingConstructorOperation;
 
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("failure expected"));
-            }
-            catch (Exception e)
-            {
-                Assert.Same(ThrowingConstructorInjectionTestClass.ConstructorException, e);
-
-                var operation = (InvokingConstructorOperation)context.CurrentOperation;
-                Assert.NotNull(operation);
-                Assert.Same(typeof(ThrowingConstructorInjectionTestClass), operation.TypeBeingConstructed);
-            }
+            Assert.NotNull(operation);
+            Assert.IsType<ThrowingConstructorInjectionTestClass>(operation.TypeBeingConstructed);            
         }
 
         [Fact]
@@ -121,8 +112,7 @@ namespace ObjectBuilder2.Tests
         [Fact]
         public void ExceptionThrownWhileResolvingAParameterIsBubbledUpAndTheCurrentOperationIsNotCleared()
         {
-            var exception = new ArgumentException();
-            var resolverPolicy = new ExceptionThrowingTestResolverPolicy(exception);
+            var resolverPolicy = new ExceptionThrowingTestResolverPolicy(new ArgumentException());
 
             MockBuilderContext context = GetContext();
             context.BuildKey = new NamedTypeBuildKey(typeof(ConstructorInjectionTestClass));
@@ -132,22 +122,12 @@ namespace ObjectBuilder2.Tests
                 context.BuildKey);
 
             IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, context.BuildKey);
+            var exception = Assert.Throws<ArgumentException>(() => plan.BuildUp(context));
+            var operation = context.CurrentOperation as ConstructorArgumentResolveOperation;
 
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("failure expected"));
-            }
-            catch (Exception e)
-            {
-                Assert.Same(exception, e);
-
-                var operation = (ConstructorArgumentResolveOperation)context.CurrentOperation;
-                Assert.NotNull(operation);
-
-                Assert.Same(typeof(ConstructorInjectionTestClass), operation.TypeBeingConstructed);
-                Assert.Equal("parameter", operation.ParameterName);
-            }
+            Assert.NotNull(operation);
+            Assert.IsType<ConstructorInjectionTestClass>(operation.TypeBeingConstructed);
+            Assert.Equal("parameter", operation.ParameterName);            
         }
 
         [Fact]
@@ -157,15 +137,7 @@ namespace ObjectBuilder2.Tests
             var key = new NamedTypeBuildKey<NoPublicConstructorInjectionTestClass>();
             IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
             context.BuildKey = key;
-
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("should have thrown"));
-            }
-            catch (InvalidOperationException)
-            {
-            }
+            Assert.Throws<InvalidOperationException>(() => plan.BuildUp(context));
         }
 
         [Fact]
@@ -175,15 +147,7 @@ namespace ObjectBuilder2.Tests
             var key = new NamedTypeBuildKey<Func<string, object>>();
             IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
             context.BuildKey = key;
-
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("should have thrown"));
-            }
-            catch (InvalidOperationException)
-            {
-            }
+            Assert.Throws<InvalidOperationException>(() => plan.BuildUp(context));
         }
 
         [Fact]
@@ -207,15 +171,7 @@ namespace ObjectBuilder2.Tests
             var key = new NamedTypeBuildKey<IComparable>();
             IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
             context.BuildKey = key;
-
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("should have thrown"));
-            }
-            catch (InvalidOperationException)
-            {
-            }
+            Assert.Throws<InvalidOperationException>(() => plan.BuildUp(context));
         }
 
         [Fact]

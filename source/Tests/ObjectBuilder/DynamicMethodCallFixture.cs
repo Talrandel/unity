@@ -48,44 +48,25 @@ namespace ObjectBuilder2.Tests
         [Fact]
         public void ThrowsWhenBuildingPlanWithGenericInjectionMethod()
         {
-            try
-            {
-                MockBuilderContext context = GetContext();
-                GetPlanCreator(context).CreatePlan(context, new NamedTypeBuildKey(typeof(ObjectWithGenericInjectionMethod)));
-                Assert.True(false);
-            }
-            catch (IllegalInjectionMethodException)
-            {
-                // This is what we want
-            }
+            MockBuilderContext context = GetContext();
+            Assert.Throws<IllegalInjectionMethodException>(
+                () => GetPlanCreator(context).CreatePlan(context, new NamedTypeBuildKey(typeof(ObjectWithGenericInjectionMethod))));
         }
 
         [Fact]
         public void ThrowsWhenBuildingPlanWithMethodWithOutParam()
         {
-            try
-            {
-                MockBuilderContext context = GetContext();
-                GetPlanCreator(context).CreatePlan(context, new NamedTypeBuildKey(typeof(ObjectWithOutParamMethod)));
-                Assert.True(false);
-            }
-            catch (IllegalInjectionMethodException)
-            {
-            }
+            MockBuilderContext context = GetContext();
+            Assert.Throws<IllegalInjectionMethodException>(
+                () => GetPlanCreator(context).CreatePlan(context, new NamedTypeBuildKey(typeof(ObjectWithOutParamMethod))));
         }
 
         [Fact]
         public void ThrowsWhenBuildingPlanWithMethodWithRefParam()
         {
-            try
-            {
-                MockBuilderContext context = GetContext();
-                GetPlanCreator(context).CreatePlan(context, new NamedTypeBuildKey(typeof(ObjectWithRefParamMethod)));
-                Assert.True(false);
-            }
-            catch (IllegalInjectionMethodException)
-            {
-            }
+            MockBuilderContext context = GetContext();
+            Assert.Throws<IllegalInjectionMethodException>(
+                () => GetPlanCreator(context).CreatePlan(context, new NamedTypeBuildKey(typeof(ObjectWithRefParamMethod))));
         }
 
         [Fact]
@@ -112,20 +93,10 @@ namespace ObjectBuilder2.Tests
 
             IBuildPlanPolicy plan =
                 GetPlanCreator(context).CreatePlan(context, key);
-
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("failure expected"));
-            }
-            catch (Exception e)
-            {
-                Assert.Same(ObjectWithSingleThrowingInjectionMethod.InjectionMethodException, e);
-                var operation = (InvokingMethodOperation)context.CurrentOperation;
-                Assert.NotNull(operation);
-
-                Assert.Same(typeof(ObjectWithSingleThrowingInjectionMethod), operation.TypeBeingConstructed);
-            }
+            var exception = Assert.Throws<ArgumentException>(() => plan.BuildUp(context));
+            var operation = context.CurrentOperation as InvokingMethodOperation;
+            Assert.NotNull(operation);
+            Assert.IsType<ObjectWithSingleThrowingInjectionMethod>(operation.TypeBeingConstructed);
         }
 
         [Fact]
@@ -143,17 +114,14 @@ namespace ObjectBuilder2.Tests
                 key);
 
             IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
-
             plan.BuildUp(context);
-
             Assert.NotNull(resolverPolicy.CurrentOperation);
         }
 
         [Fact]
         public void ExceptionThrownWhileResolvingAParameterIsBubbledUpAndTheCurrentOperationIsNotCleared()
         {
-            var exception = new ArgumentException();
-            var resolverPolicy = new ExceptionThrowingTestResolverPolicy(exception);
+            var resolverPolicy = new ExceptionThrowingTestResolverPolicy(new ArgumentException());
 
             MockBuilderContext context = GetContext();
             var key = new NamedTypeBuildKey<ObjectWithSingleInjectionMethod>();
@@ -166,20 +134,11 @@ namespace ObjectBuilder2.Tests
 
             IBuildPlanPolicy plan = GetPlanCreator(context).CreatePlan(context, key);
 
-            try
-            {
-                plan.BuildUp(context);
-                Assert.True(false, string.Format("failure expected"));
-            }
-            catch (Exception e)
-            {
-                Assert.Same(exception, e);
-                var operation = (MethodArgumentResolveOperation)context.CurrentOperation;
-                Assert.NotNull(operation);
-
-                Assert.Same(typeof(ObjectWithSingleInjectionMethod), operation.TypeBeingConstructed);
-                Assert.Equal("parameter", operation.ParameterName);
-            }
+            var exception = Assert.Throws<ArgumentException>(() => plan.BuildUp(context));
+            var operation = context.CurrentOperation as MethodArgumentResolveOperation;
+            Assert.NotNull(operation);
+            Assert.IsType<ObjectWithSingleInjectionMethod>(operation.TypeBeingConstructed);
+            Assert.Equal("parameter", operation.ParameterName);
         }
 
         private MockBuilderContext GetContext()
